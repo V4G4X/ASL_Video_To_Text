@@ -64,7 +64,7 @@ if os.path.exists(r'LiveRecording') and os.path.isdir(r'LiveRecording'):
 os.mkdir(r'LiveRecording')
 
 img = cv2.imread('doggo.jpg')
-img = cv2.resize(img, (640, 480),interpolation = cv2.INTER_NEAREST)
+img = cv2.resize(img, (640, 480))
 
 while True:
     frames_list = []
@@ -82,13 +82,15 @@ while True:
         writeVid.write(frame)
         count += 1
         key = cv2.waitKey(33)
-        if key == ord(' '):
+        if key == 10 or key == 13:
             flag = True
 
     writeVid.release()
 
     cv2.imshow('Recording',img)
-    cv2.waitKey(2000)
+    key = cv2.waitKey(2000)
+    if key == 10 or key == 13:
+            flag = True
 
     X.append(frames_list)
     count = 0

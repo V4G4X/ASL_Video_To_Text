@@ -23,7 +23,8 @@ List of supported words:
 
 When recording input videos live, you will be provided with ```3 seconds``` for each word.  
 A warning image will flash to remind the user.  
-If you want to quit recording. Press ```Spacebar```.
+If you want to quit recording. Press ```Enter```.  
+If you wish to record more words, don't press anything.
 
 # To Run
 ```
