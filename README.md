@@ -21,7 +21,7 @@ List of supported words:
  19. sick
  20. want
 
-When recording input videos live, you will be provided with ```3 seconds ```for each word.  
+When recording input videos live, you will be provided with ```3 seconds``` for each word.  
 A warning image will flash to remind the user.  
 If you want to quit recording. Press ```Spacebar```.
 
