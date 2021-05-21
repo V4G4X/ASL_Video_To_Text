@@ -21,18 +21,6 @@ from keras.applications.vgg16 import VGG16
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
 import sys
-# sys.path.insert(0,'/content/drive/MyDrive/BE Project/Scripts/HandExtraction/utils')
-# sys.path.insert(1,'/content/drive/MyDrive/BE Project/Scripts/HandExtraction/hand_inference_graph')
-# sys.path.insert(2,'/content/drive/MyDrive/BE Project/Scripts/HandExtraction/protos')
-# sys.path.insert(3,'/content/drive/MyDrive/BE Project/Scripts/HandExtraction/utils/label_map_util')
-
-# print(sys.path)
-
-# Commented out IPython magic to ensure Python compatibility.
-# %cd /content/drive/MyDrive/BE Project/Scripts/HandExtraction
-
-# cwd = os.getcwd()
-# print(cwd)
 
 from utils import detector_utils
 detection_graph, sess = detector_utils.load_inference_graph()
@@ -56,121 +44,6 @@ def duplicator(frames, sequenceLength):
         outVideo.append(frames[-1])
 
     return outVideo
-
-#  Creating frames from videos
-def hand_extraction(video):
-    img_height, img_width = 64, 64
-    seq_len = 72
-    frames_list = []
-    img_w, img_h = 64, 64
-    #fc is the frame count that needs to be maintained in case the number of frames is above 72 but by elimination of frames through hand recognition
-    #educes the number of frames to have below 72, which will cause an alignment issue with the starting_frames array
-    fc = 0
-    noLimbCount = 0
-    idx_flag = False
-    detected_frames = 0
-    detection_graph, sess = detector_utils.load_inference_graph()
-
-
-    for image in video: 
-        #success, image = vidObj.read() 
-        success  = True 
-        if success:
-          fc += 1
-          #for face removal ignore
-          #image = image[int(image.shape[0]/4):]
-          image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-          boxes, scores = detector_utils.detect_objects(image, detection_graph, sess)
-          #box scores are already sorted, they have their values in the order of t,l,b,r
-          box1, score1 = boxes[0], scores[0]
-          box2, score2 = boxes[1], scores[1]
-          
-          #we have set the threshold at 0.3 , it can be changed
-          #in case there are 2 hands/boxes
-          if scores[0] >= 0.3 and scores[1] >= 0.3:
-            
-            l1,r1,t1,b1 = box1[1],box1[3],box1[0],box1[2]
-            l2, r2, t2, b2 = box2[1], box2[3], box2[0], box2[2]
-            
-            l = 0
-            r = 0
-            t = 0
-            b = 0
-            #this makes the smallest box that fits both the boxes
-            if l1 < l2:
-                l = l1
-            else:
-                l = l2
-            
-            if b1 > b2:
-                b = b1
-            else:
-                b = b2
-            
-            if t1 > t2:
-                t = t2
-            else:
-                t = t1
-            
-            if r1 < r2:
-                r = r2
-            else:
-                r = r1
-                
-            box = [t,l,b,r]
-            
-            #cropping the image
-            t,l,b,r = t*img_h,l*img_w,b*img_h,r*img_w
-            print("t: {},l : {} , b : {}, r : {}".format(t,l,b,r))
-            image = image[int(t):int(b),int(l):int(r)]
-            print(image.shape)
-            
-            image = cv2.resize(image, (img_height, img_width))
-            #cv2_imshow(image)
-            
-
-            frames_list.append(image)
-
-            
-            detected_frames += 1
-          #for only one hand
-          elif scores[0] >= 0.3:
-
-            l1,r1,t1,b1 = box1[1]*img_w,box1[3]*img_w,box1[0]*img_h,box1[2]*img_h
-            l1,r1,t1,b1 = int(l1),int(r1),int(t1),int(b1)
-            image = image[t1:b1,l1:r1]           
-
-            image = cv2.resize(image, (img_height, img_width))
-            frames_list.append(image)
-            print("t: {},l : {} , b : {}, r : {}".format(t1,l1,b1,r1))
-            print(image.shape)
-            #cv2_imshow(image)
-            detected_frames += 1
-          #totally jashs idiocy ignore
-          elif scores[1] >= 0.3:
-            l2,r2,t2,b2 = box2[1]*img_w,box2[3]*img_w,box2[0]*img_h,box2[2]*img_h
-            image = image[int(t2):int(b2),int(l2):int(r2)]
-
-            image = cv2.resize(image, (img_height, img_width))
-            frames_list.append(image)
-            #cv2_imshow(image)
-            detected_frames += 1
-          #in case there are no hands we chill and dont add any part of the frame
-          else:
-            # if noLimbCount < 3:
-              #cv2_imshow(image)
-              # print("No limbic appendages detected!")
-            noLimbCount += 1
-            #if fc < starting_frames[idx]:
-             # sf -= 1
-        else:
-          #print("Defected/Last frame")
-          break
- 
-    if len(frames_list) < seq_len and detected_frames > 0:
-      frames_list = duplicator(frames_list,seq_len)  
-   
-    return np.array(frames_list)
 
 def video_to_descriptors(X):
   conv_base = VGG16(weights='imagenet',include_top=False,input_shape=(64,64,3))
@@ -368,23 +241,14 @@ def frames_extraction(video_path,idx = 0,starting_frames = [0]):
 
 model = load_model('Model/VGG16_20_words_2LSTM_13052021_9011_accuracy.h5')
 classes = ['cold','crash','doctor', 'give', 'medicine', 'no', 'police', 'woman', 'yes','animal','child','danger','help','home','kill','please','rob','send','sick','want']
+
 def predict(descriptor):
   descriptor.shape = (1, 72, 2048)
   y_pred = model.predict(descriptor)
   index = int(y_pred.argmax(axis=1)[0])
-  class_name = classes[index]
-  return class_name
-
-'''
-folder_path = r'LiveRecording'
-video_list = sorted([os.path.join(folder_path,each) for each in os.listdir(folder_path)])
-print(video_list)
-output = []
-for each in video_list:
-  desc = preprocess(each)
-  word = predict(desc)
-  output.append(word)
-
-print()
-print(output)
-'''
+  confidence = y_pred[0][index]
+  if(confidence >= 0.25):
+    class_name = classes[index]
+    return class_name
+  else:
+    return "'UnClassified'"
