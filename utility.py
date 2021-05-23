@@ -133,6 +133,8 @@ def frames_extraction(video_path,idx = 0,starting_frames = [0]):
     detected_frames = 0
     # detection_graph, sess = detector_utils.load_inference_graph()
 
+    counter = 0 # Goes till 10 frames
+    faceFlag = False
 
     while vidObj.isOpened(): 
         success, image = vidObj.read()  
@@ -141,6 +143,18 @@ def frames_extraction(video_path,idx = 0,starting_frames = [0]):
           #for face removal ignore
           #image = image[int(image.shape[0]/4):]
           image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+          # Check image for face
+          face = detector_utils.face_in_frame(image, None, False)
+          if counter < 10:
+            faceFlag = faceFlag or face
+            counter+=1
+          else:
+            if not faceFlag:
+              raise Exception("Face not in Frame")
+
+
+
           img_w, img_h = vidObj.get(3),vidObj.get(4)
           boxes, scores = detector_utils.detect_objects(image, detection_graph, sess)
           #box scores are already sorted, they have their values in the order of t,l,b,r

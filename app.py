@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 from tkinter.ttk import *
+from tkinter import messagebox
 import os
 
 from utility import preprocess, predict
@@ -20,7 +21,7 @@ canvas = tk.Canvas(root, height=HEIGHT, width=WIDTH)
 canvas.pack()
 
 #Heading
-headLabel = tk.Label(root,bg='Gray',text='Welcome to the American Sign Language Interpreter!',font=100)
+headLabel = tk.Label(root,bg='Gray',text='Welcome to the American Sign Language Interpreter!',font=("Arial", 20))
 headLabel.place(relx=0.1,relwidth=0.80,relheight=0.15)
 
 #Use frame for actual placing of elements
@@ -69,16 +70,32 @@ browseButton.place(relx=0.785,rely=0.55,relwidth=0.15,relheight=0.15)
 browseButton.bind("<Enter>",on_enter)
 browseButton.bind("<Leave>",on_leave)
 
+#Function to check if a file is a video
+def isVideo(filePath):
+    ext = filePath[filePath.rfind('.')+1:]
+    # print("Extension: %s"%(ext))
+    return ext == 'mp4'
+
 # Function to pass the video_folder path given for processing
 def convert_folder():
     folder_path = dataEntry.cget(key = "text")
-    video_list = sorted([os.path.join(folder_path,each) for each in os.listdir(folder_path)])
-    # print(video_list)
-    for video in video_list:
-        descriptor = preprocess(video)
-        word = predict(descriptor)
-        print("Predicted:", word)
-        outputDisplay.configure(text = outputDisplay.cget(key = "text") + word + ' ')
+    try:
+        video_list = sorted([os.path.join(folder_path,each) for each in os.listdir(folder_path)])
+    except Exception as e:
+        # Incase where the input path may be incorrect e.g blank
+        tk.messagebox.showinfo("Error", str(e))
+    for each in video_list:
+        if not isVideo(each):
+            tk.messagebox.showinfo("Error", "Folder contains non-mp4 files.")
+            return None
+    try:
+        for video in video_list:
+            descriptor = preprocess(video)
+            word = predict(descriptor)
+            print("Predicted:", word)
+            outputDisplay.configure(text = outputDisplay.cget(key = "text") + word + ' ')
+    except Exception as e:
+        tk.messagebox.showinfo("Error", str(e))
 
 #Upload button to upload video to the application
 convertButton = tk.Button(frame, text='Translate',font=20, bg='white', fg='black',command=convert_folder)

@@ -63,7 +63,7 @@ if os.path.exists(r'LiveRecording') and os.path.isdir(r'LiveRecording'):
     shutil.rmtree(r'LiveRecording')
 os.mkdir(r'LiveRecording')
 
-img = cv2.imread('doggo.jpg')
+img = cv2.imread('warning.jpeg')
 img = cv2.resize(img, (640, 480))
 
 while True:
@@ -88,7 +88,7 @@ while True:
     writeVid.release()
 
     cv2.imshow('Recording',img)
-    key = cv2.waitKey(2000)
+    key = cv2.waitKey(3000)
     if key == 10 or key == 13:
             flag = True
 
