@@ -48,15 +48,15 @@ liveStreamButton.bind("<Leave>",on_leave)
 
 #OR Label
 orLabel = tk.Label(frame, fg='black', bg='#80c1ff',text='OR',font=30)
-orLabel.place(relx=0.35,rely=0.35,relwidth=0.3,relheight=0.1)
+orLabel.place(relx=0.35,rely=0.30,relwidth=0.3,relheight=0.1)
 
 #Location Label
 locationLabel = tk.Label(frame, fg='black', bg='#80c1ff',text='Location:',font=30)
-locationLabel.place(relx=0.03,rely=0.55,relwidth=0.16,relheight=0.15)
+locationLabel.place(relx=0.03,rely=0.45,relwidth=0.16,relheight=0.15)
 
 #Button that will contain the location of the selected video
 dataEntry = Label(frame, font=20)
-dataEntry.place(relx=0.2,rely=0.55,relwidth=0.57,relheight=0.15)
+dataEntry.place(relx=0.2,rely=0.45,relwidth=0.57,relheight=0.15)
 
 #Function to browse and read file
 def browseFile():
@@ -66,7 +66,7 @@ def browseFile():
 
 #Button to browse only videos from the file system that need to be interpreted for sign language
 browseButton = tk.Button(frame, text='Browse',font='30', bg='white', fg='black',command=browseFile)
-browseButton.place(relx=0.785,rely=0.55,relwidth=0.15,relheight=0.15)
+browseButton.place(relx=0.785,rely=0.45,relwidth=0.15,relheight=0.15)
 browseButton.bind("<Enter>",on_enter)
 browseButton.bind("<Leave>",on_leave)
 
@@ -78,6 +78,11 @@ def isVideo(filePath):
 
 # Function to pass the video_folder path given for processing
 def convert_folder():
+    #Initialise Progress and outputDisplay
+    progress.place(relx=0.25,rely=0.70,relwidth=0.50,relheight=0.05)
+    progress['value'] = 0
+    outputDisplay.configure(text = '')
+
     folder_path = dataEntry.cget(key = "text")
     try:
         video_list = sorted([os.path.join(folder_path,each) for each in os.listdir(folder_path)])
@@ -89,19 +94,26 @@ def convert_folder():
             tk.messagebox.showinfo("Error", "Folder contains non-mp4 files.")
             return None
     try:
+        step = 100/len(video_list)
         for video in video_list:
+            root.update_idletasks()
             descriptor = preprocess(video)
             word = predict(descriptor)
             print("Predicted:", word)
             outputDisplay.configure(text = outputDisplay.cget(key = "text") + word + ' ')
+            progress['value'] += step
     except Exception as e:
         tk.messagebox.showinfo("Error", str(e))
+    # progress.destroy()
 
 #Upload button to upload video to the application
 convertButton = tk.Button(frame, text='Translate',font=20, bg='white', fg='black',command=convert_folder)
-convertButton.place(relx=0.35,rely=0.75,relwidth=0.3,relheight=0.15)
+convertButton.place(relx=0.35,rely=0.65,relwidth=0.3,relheight=0.15)
 convertButton.bind("<Enter>",on_enter)
 convertButton.bind("<Leave>",on_leave)
+
+# Progress Bar for Translation
+progress = Progressbar(root, orient=HORIZONTAL, len=800, mode='determinate')
 
 #Output Frame
 outputFrame = tk.LabelFrame(root, fg='black', bg='#80c1ff',text='Output',font=15,relief ='groove',borderwidth=5)
