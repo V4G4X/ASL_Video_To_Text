@@ -56,6 +56,8 @@ def preprocess(video_path):
   _, frames = frames_extraction(video_path, 0 , [0])
   frames = np.array(frames)
   # print("Shape of frame_extraction output:",frames.shape)
+  if frames.shape[0] == 0:
+    raise Exception("Input Video does not contain hands.")
   descriptor = video_to_descriptors(frames)
   return descriptor
 
@@ -77,7 +79,7 @@ def video_split(video_path):
       frames_list.append(frame) #Append frame to the list
 
       count += 1
-    if len(frames_list) >=36:
+    if len(frames_list) >= 36:
       X.append(frames_list)
     count = 0
     if ret == False:
@@ -137,12 +139,12 @@ def frames_extraction(video_path,idx = 0,starting_frames = [0]):
     faceFlag = False
 
     while vidObj.isOpened(): 
-        success, image = vidObj.read()  
+        success, imageRGB = vidObj.read()  
         if success:
           fc += 1
           #for face removal ignore
           #image = image[int(image.shape[0]/4):]
-          image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+          image = cv2.cvtColor(imageRGB, cv2.COLOR_BGR2RGB)
 
           # Check image for face
           face = detector_utils.face_in_frame(image, None, False)
@@ -153,7 +155,10 @@ def frames_extraction(video_path,idx = 0,starting_frames = [0]):
             if not faceFlag:
               raise Exception("Face not in Frame")
 
-
+          # If the face is already recorded, dont overwrite it.
+          # Also write the image to disk only if faceFlag test has passed before and the current image has a face.
+          if not os.path.isfile('face.jpeg') and face and faceFlag:
+            cv2.imwrite('face.jpeg', imageRGB)
 
           img_w, img_h = vidObj.get(3),vidObj.get(4)
           boxes, scores = detector_utils.detect_objects(image, detection_graph, sess)
