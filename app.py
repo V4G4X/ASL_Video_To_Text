@@ -1,15 +1,16 @@
+import os
 import tkinter as tk
 from tkinter import *
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from tkinter.ttk import *
-from tkinter import messagebox
-import os
 
-from utility import preprocess, predict
+from getLocation import getLocation
+from sendMail import send_email
 from textToSpeech import tts
+from utility import predict, preprocess
 
 #Variables
-HEIGHT = 600
+HEIGHT = 800
 WIDTH = 800
 
 
@@ -22,7 +23,7 @@ canvas.pack()
 
 #Heading
 headLabel = tk.Label(root,bg='Gray',text='Welcome to the American Sign Language Interpreter!',font=("Arial", 20))
-headLabel.place(relx=0.1,relwidth=0.80,relheight=0.15)
+headLabel.place(relx=0.05,relwidth=0.90,relheight=0.15)
 
 #Use frame for actual placing of elements
 def viewLiveStream():
@@ -37,26 +38,26 @@ def on_leave(e):
     e.widget['background'] = 'Gray'
 
 #VideoInput Frame
-frame = tk.LabelFrame(root, fg='black', bg='#80c1ff', text='Video Input', font=15 , relief ='groove' ,borderwidth=5)
-frame.place(relx=0.1,rely=0.18,relwidth=0.80,relheight=0.6)
+frame = tk.LabelFrame(root, fg='black', bg='#80c1ff', text='Video Input', font=('Helvetica',15) , relief ='groove' ,borderwidth=5)
+frame.place(relx=0.05,rely=0.18,relwidth=0.90,relheight=0.5)
 
 #Live Stream Button
-liveStreamButton = tk.Button(frame,text='Record Live Video',font=20,bg='white',fg='black',command = viewLiveStream)
+liveStreamButton = tk.Button(frame,text='Record Live Video',font=('Helvetica',20),bg='white',fg='black',command=viewLiveStream)
 liveStreamButton.place(relx=0.25,rely=0.1,relwidth=0.5,relheight=0.15)
 liveStreamButton.bind("<Enter>",on_enter)
 liveStreamButton.bind("<Leave>",on_leave)
 
 #OR Label
-orLabel = tk.Label(frame, fg='black', bg='#80c1ff',text='OR',font=30)
+orLabel = tk.Label(frame, fg='black', bg='#80c1ff',text='OR',font=('Helvetica',15))
 orLabel.place(relx=0.35,rely=0.30,relwidth=0.3,relheight=0.1)
 
 #Location Label
-locationLabel = tk.Label(frame, fg='black', bg='#80c1ff',text='Location:',font=30)
+locationLabel = tk.Label(frame, fg='black', bg='#80c1ff',text='Location:',font=('Helvetica',15))
 locationLabel.place(relx=0.03,rely=0.45,relwidth=0.16,relheight=0.15)
 
 #Button that will contain the location of the selected video
 dataEntry = Label(frame, font=20)
-dataEntry.place(relx=0.2,rely=0.45,relwidth=0.57,relheight=0.15)
+dataEntry.place(relx=0.18,rely=0.45,relwidth=0.60,relheight=0.15)
 
 #Function to browse and read file
 def browseFile():
@@ -65,8 +66,8 @@ def browseFile():
 
 
 #Button to browse only videos from the file system that need to be interpreted for sign language
-browseButton = tk.Button(frame, text='Browse',font='30', bg='white', fg='black',command=browseFile)
-browseButton.place(relx=0.785,rely=0.45,relwidth=0.15,relheight=0.15)
+browseButton = tk.Button(frame, text='Browse',font=('Helvetica',20), bg='white', fg='black',command=browseFile)
+browseButton.place(relx=0.80,rely=0.45,relwidth=0.18,relheight=0.15)
 browseButton.bind("<Enter>",on_enter)
 browseButton.bind("<Leave>",on_leave)
 
@@ -78,10 +79,14 @@ def isVideo(filePath):
 
 # Function to pass the video_folder path given for processing
 def convert_folder():
-    #Initialise Progress and outputDisplay
-    progress.place(relx=0.25,rely=0.70,relwidth=0.50,relheight=0.05)
+    # Initialise Progress and outputDisplay
+    progress.place(relx=0.2,rely=0.85,relwidth=0.60,relheight=0.07)
     progress['value'] = 0
     outputDisplay.configure(text = '')
+
+    # Clear out the previous face
+    if os.path.isfile('face.jpeg'):
+        os.remove('face.jpeg')
 
     folder_path = dataEntry.cget(key = "text")
     try:
@@ -104,35 +109,52 @@ def convert_folder():
             progress['value'] += step
     except Exception as e:
         tk.messagebox.showinfo("Error", str(e))
+        raise e
     # progress.destroy()
 
 #Upload button to upload video to the application
-convertButton = tk.Button(frame, text='Translate',font=20, bg='white', fg='black',command=convert_folder)
+convertButton = tk.Button(frame, text='Translate',font=('Helvetica',20), bg='white', fg='black',command=convert_folder)
 convertButton.place(relx=0.35,rely=0.65,relwidth=0.3,relheight=0.15)
 convertButton.bind("<Enter>",on_enter)
 convertButton.bind("<Leave>",on_leave)
 
 # Progress Bar for Translation
-progress = Progressbar(root, orient=HORIZONTAL, len=800, mode='determinate')
+progress = Progressbar(frame, orient=HORIZONTAL, len=800, mode='determinate')
 
 #Output Frame
-outputFrame = tk.LabelFrame(root, fg='black', bg='#80c1ff',text='Output',font=15,relief ='groove',borderwidth=5)
-outputFrame.place(relx=0.1,rely=0.8,relwidth=0.80,relheight=0.15)
+outputFrame = tk.LabelFrame(root, fg='black', bg='#80c1ff',text='Output',font=('Helvetica',15),relief ='groove',borderwidth=5)
+outputFrame.place(relx=0.05,rely=0.7,relwidth=0.90,relheight=0.25)
 
 #Textbox to print text output
 outputDisplay = Label(outputFrame, font=('Arial',20))
-outputDisplay.place(relx=0.02,rely=0.1,relheight=0.8,relwidth=0.75)
+outputDisplay.place(relx=0.02,rely=0.15,relheight=0.3,relwidth=0.75)
 
 # Function that will read out text of outputDisplay
 def readOutOutput():
     text = outputDisplay.cget(key="text")
     tts(text=text)
 
-#Button to generate output
-audioButton = tk.Button(outputFrame,text='Audio',font=20, command=readOutOutput)
-audioButton.place(relx=0.8,rely=0.1,relheight=0.8,relwidth=0.18)
+# Button to generate output
+audioButton = tk.Button(outputFrame,text='Audio',font=('Helvetica',20), bg='white', fg='black',command=readOutOutput)
+audioButton.place(relx=0.8,rely=0.15,relheight=0.3,relwidth=0.18)
 audioButton.bind("<Enter>",on_enter)
 audioButton.bind("<Leave>",on_leave)
+
+# Function to get User's co-ordinates, face(TODO) and then send mail
+def emailDetails():
+    coords = getLocation()
+    msg = outputDisplay.cget(key = "text")
+    if(msg != ''):
+        send_email(msg, coords)
+
+#Button to send Email
+emailButton = tk.Button(outputFrame,text='Send Email',font=('Helvetica',20), bg='white', fg='black', command=emailDetails)
+emailButton.place(relx=0.25,rely=0.55,relwidth=0.5,relheight=0.3)
+emailButton.bind("<Enter>",on_enter)
+emailButton.bind("<Leave>",on_leave)
+
+
+# outputDisplay.configure(text = "This is some sample message text")
 
 #Driver
 root.mainloop()
