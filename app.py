@@ -164,7 +164,7 @@ emailButton.bind("<Enter>",on_enter)
 emailButton.bind("<Leave>",on_leave)
 
 
-outputDisplay.configure(text = "This is some sample message text")
+# outputDisplay.configure(text = "This is some sample message text")
 
 #Driver
 root.mainloop()
