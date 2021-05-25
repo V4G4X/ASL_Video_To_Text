@@ -140,12 +140,22 @@ audioButton.place(relx=0.8,rely=0.15,relheight=0.3,relwidth=0.18)
 audioButton.bind("<Enter>",on_enter)
 audioButton.bind("<Leave>",on_leave)
 
-# Function to get User's co-ordinates, face(TODO) and then send mail
+# Function to get User's co-ordinates, face and then sends mail
 def emailDetails():
-    coords = getLocation()
-    msg = outputDisplay.cget(key = "text")
-    if(msg != ''):
-        send_email(msg, coords)
+    coords = None
+    try:
+        # coords = getLocation()
+        coords = "Coords"
+        msg = outputDisplay.cget(key = "text")
+        if(msg != ''):
+            send_email(msg, coords)
+    except TypeError as e:
+        tk.messagebox.showinfo("Error", "Check Internet Connection.")
+        raise e
+    except Exception as e:
+        tk.messagebox.showinfo("Error", "Check Internet Connection.\nOr Console.")
+        raise e
+
 
 #Button to send Email
 emailButton = tk.Button(outputFrame,text='Send Email',font=('Helvetica',20), bg='white', fg='black', command=emailDetails)
@@ -154,7 +164,7 @@ emailButton.bind("<Enter>",on_enter)
 emailButton.bind("<Leave>",on_leave)
 
 
-# outputDisplay.configure(text = "This is some sample message text")
+outputDisplay.configure(text = "This is some sample message text")
 
 #Driver
 root.mainloop()
