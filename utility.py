@@ -10,15 +10,15 @@ Original file is located at
 import numpy as np
 import os, cv2
 
-import keras
-from keras import applications
-from keras.preprocessing.image import ImageDataGenerator
-from keras import optimizers
-from keras.models import Sequential, Model, load_model
-from keras.layers import *
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler, TensorBoard, EarlyStopping
-from keras.applications.vgg16 import VGG16
-from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
+#import keras
+from tensorflow.keras import applications
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras import optimizers
+from tensorflow.keras.models import Sequential, Model, load_model
+from tensorflow.keras.layers import *
+from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler, TensorBoard, EarlyStopping
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
 import sys
 

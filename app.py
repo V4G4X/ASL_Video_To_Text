@@ -13,7 +13,6 @@ from utility import predict, preprocess
 HEIGHT = 800
 WIDTH = 800
 
-
 root = tk.Tk()
 root.title('Sign Language Interpreter!')
 
@@ -132,7 +131,10 @@ outputDisplay.place(relx=0.02,rely=0.15,relheight=0.3,relwidth=0.75)
 # Function that will read out text of outputDisplay
 def readOutOutput():
     text = outputDisplay.cget(key="text")
-    tts(text=text)
+    if text == '':
+        tk.messagebox.showinfo("Error", "No text to read.")
+    else:
+        tts(text=text)
 
 # Button to generate output
 audioButton = tk.Button(outputFrame,text='Audio',font=('Helvetica',20), bg='white', fg='black',command=readOutOutput)
@@ -144,16 +146,19 @@ audioButton.bind("<Leave>",on_leave)
 def emailDetails():
     coords = None
     try:
-        # coords = getLocation()
-        coords = "Coords"
+        coords = getLocation()
+        #coords = "Coords"
         msg = outputDisplay.cget(key = "text")
         if(msg != ''):
             send_email(msg, coords)
+            tk.messagebox.showinfo("Success!", "Mail has been sent!")
+        else:
+            tk.messagebox.showinfo("Error", "No text to send.")    
     except TypeError as e:
         tk.messagebox.showinfo("Error", "Check Internet Connection.")
         raise e
     except Exception as e:
-        tk.messagebox.showinfo("Error", "Check Internet Connection.\nOr Console.")
+        tk.messagebox.showinfo("Error", "Check Internet Connection.")
         raise e
 
 

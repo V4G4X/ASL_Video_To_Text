@@ -8,7 +8,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-fromaddr = "varun.gawande@gmail.com"
+fromaddr = "vedantkp99@gmail.com"
 toaddr = "vedant.puranik@gmail.com"
 
 def send_email(message,location):
@@ -59,7 +59,7 @@ def send_email(message,location):
     s.starttls()
 
     # Authentication
-    s.login(fromaddr, "password")
+    s.login(fromaddr, "AllesGuteZumGeburtstag2706")
 
     # Converts the Multipart msg into a string
     text = msg.as_string()
