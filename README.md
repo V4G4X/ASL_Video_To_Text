@@ -26,10 +26,12 @@ A warning image will flash to remind the user.
 If you want to quit recording. Press ```Enter```.  
 If you wish to record more words, don't press anything.
 
+# Install Dependencies
+```
+pip3 install -r requirements.txt
+```
+
 # To Run
 ```
 python app.py
 ```
-
-# Required Libraries
-```numpy, pandas, tensorflow, keras, tkinter, cv2(opencv), gtts, pygame, and more...```
